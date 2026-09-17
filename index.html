@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Badminton Fee Calculator</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #0f111a;
+      --surface: #171a26;
+      --surface-2: #1e2231;
+      --surface-3: #252a3b;
+      --border: #30364a;
+      --text: #f4f6fb;
+      --muted: #9299ae;
+      --primary: #8ab4ff;
+      --primary-soft: rgba(138, 180, 255, 0.12);
+      --success: #9be7a5;
+      --success-soft: rgba(155, 231, 165, 0.11);
+      --purple: #c9a7ff;
+      --danger: #ff8f8f;
+      --radius: 18px;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px 14px 40px;
+      background:
+        radial-gradient(circle at 50% -10%, rgba(138, 180, 255, 0.13), transparent 35%),
+        var(--bg);
+      color: var(--text);
+      font-family:
+        -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    /* ---------- Header ---------- */
+
+    .header {
+      text-align: center;
+      margin-bottom: 22px;
+    }
+
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 11px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      margin-bottom: 12px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: clamp(25px, 6vw, 34px);
+      line-height: 1.15;
+      letter-spacing: -0.7px;
+    }
+
+    .header p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* ---------- Main Card ---------- */
+
+    .card {
+      background: rgba(23, 26, 38, 0.94);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.32);
+      backdrop-filter: blur(12px);
+    }
+
+    .section + .section {
+      margin-top: 24px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0 0 13px;
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .section-title .icon {
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
+      background: var(--primary-soft);
+      font-size: 15px;
+    }
+
+    /* ---------- Inputs ---------- */
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .input-card {
+      padding: 13px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--surface-2);
+    }
+
+    .input-card label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 9px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.45px;
+    }
+
+    .unit {
+      color: var(--primary);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .stepper {
+      display: flex;
+      align-items: center;
+      height: 48px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      background: var(--surface-3);
+    }
+
+    .stepper input {
+      min-width: 0;
+      width: 100%;
+      height: 100%;
+      padding: 0;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--text);
+      text-align: center;
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .stepper input:focus {
+      background: var(--primary-soft);
+    }
+
+    .stepper input::-webkit-outer-spin-button,
+    .stepper input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .stepper input[type="number"] {
+      -moz-appearance: textfield;
+    }
+
+    .step-btn {
+      flex: 0 0 45px;
+      width: 45px;
+      height: 100%;
+      border: 0;
+      background: transparent;
+      color: var(--primary);
+      font-size: 23px;
+      font-weight: 500;
+      cursor: pointer;
+      transition:
+        background 0.15s ease,
+        transform 0.08s ease;
+      touch-action: manipulation;
+    }
+
+    .step-btn:hover {
+      background: var(--primary-soft);
+    }
+
+    .step-btn:active {
+      transform: scale(0.9);
+      background: rgba(138, 180, 255, 0.2);
+    }
+
+    /* ---------- Hourly Overview ---------- */
+
+    .table-shell {
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--surface-2);
+    }
+
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      min-width: 590px;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    th {
+      padding: 12px 8px;
+      background: var(--surface-3);
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 10px 7px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      vertical-align: middle;
+      color: #dfe3ed;
+    }
+
+    tbody tr {
+      transition: background 0.15s ease;
+    }
+
+    tbody tr:hover {
+      background: rgba(255, 255, 255, 0.025);
+    }
+
+    .hour-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 48px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-weight: 800;
+    }
+
+    .money {
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .fee-cell {
+      color: var(--success) !important;
+      font-weight: 900;
+      font-size: 13px;
+    }
+
+    .stepper-sm {
+      width: 108px;
+      height: 36px;
+      margin: 0 auto;
+      border-radius: 9px;
+    }
+
+    .stepper-sm .step-btn {
+      flex: 0 0 31px;
+      width: 31px;
+      font-size: 17px;
+    }
+
+    .stepper-sm input {
+      font-size: 13px;
+    }
+
+    /* ---------- Summary ---------- */
+
+    .summary {
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .summary-box {
+      padding: 15px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--surface-2);
+    }
+
+    .summary-box.primary {
+      border-color: rgba(155, 231, 165, 0.25);
+      background: var(--success-soft);
+    }
+
+    .summary-label {
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.45px;
+    }
+
+    .summary-value {
+      margin-top: 5px;
+      color: var(--text);
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -0.4px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .summary-box.primary .summary-value {
+      color: var(--success);
+    }
+
+    .summary-note {
+      margin: 12px 2px 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    /* ---------- Copy Button ---------- */
+
+    .copy-btn {
+      width: 100%;
+      min-height: 52px;
+      margin-top: 15px;
+      padding: 13px 16px;
+      border: 0;
+      border-radius: 12px;
+      background: var(--primary);
+      color: #10131d;
+      font-size: 14px;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 7px 20px rgba(138, 180, 255, 0.12);
+      transition:
+        transform 0.12s ease,
+        opacity 0.15s ease,
+        background 0.2s ease;
+      touch-action: manipulation;
+    }
+
+    .copy-btn:hover {
+      opacity: 0.92;
+    }
+
+    .copy-btn:active {
+      transform: scale(0.985);
+    }
+
+    .copy-btn.success {
+      background: var(--success);
+    }
+
+
+    /* ---------- Theme Toggle ---------- */
+
+    .theme-toggle {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 20;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 11px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 800;
+      transition: background 0.2s ease, border-color 0.2s ease, transform 0.12s ease;
+      touch-action: manipulation;
+    }
+
+    .theme-toggle:hover {
+      background: var(--surface-2);
+    }
+
+    .theme-toggle:active {
+      transform: scale(0.96);
+    }
+
+    .theme-icon {
+      font-size: 15px;
+      line-height: 1;
+    }
+
+    body.light {
+      --bg: #f3f5f9;
+      --surface: #ffffff;
+      --surface-2: #f8f9fc;
+      --surface-3: #eef1f7;
+      --border: #dce1eb;
+      --text: #1b2030;
+      --muted: #687084;
+      --primary: #4d7edb;
+      --primary-soft: rgba(77, 126, 219, 0.10);
+      --success: #2f9e44;
+      --success-soft: rgba(47, 158, 68, 0.09);
+      --purple: #8250c8;
+      --danger: #d64545;
+    }
+
+    body.light {
+      background:
+        radial-gradient(circle at 50% -10%, rgba(77, 126, 219, 0.12), transparent 35%),
+        var(--bg);
+    }
+
+    body.light .card {
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 16px 40px rgba(30, 40, 65, 0.10);
+    }
+
+    body.light .header-badge,
+    body.light .theme-toggle {
+      box-shadow: 0 5px 18px rgba(30, 40, 65, 0.07);
+    }
+
+    body.light .copy-btn {
+      color: #ffffff;
+      box-shadow: 0 7px 20px rgba(77, 126, 219, 0.16);
+    }
+
+    body.light .copy-btn.success {
+      color: #ffffff;
+    }
+
+    @media (max-width: 560px) {
+      .theme-toggle {
+        top: 10px;
+        right: 10px;
+        padding: 7px 9px;
+      }
+
+      .theme-label {
+        display: none;
+      }
+    }
+
+    /* ---------- Mobile ---------- */
+
+    @media (max-width: 560px) {
+      body {
+        padding: 17px 10px 30px;
+      }
+
+      .header {
+        margin-bottom: 17px;
+      }
+
+      .header h1 {
+        font-size: 25px;
+      }
+
+      .header p {
+        font-size: 13px;
+      }
+
+      .card {
+        padding: 14px;
+        border-radius: 16px;
+      }
+
+      .form-grid {
+        gap: 9px;
+      }
+
+      .input-card {
+        padding: 10px;
+        border-radius: 12px;
+      }
+
+      .stepper {
+        height: 44px;
+      }
+
+      .step-btn {
+        flex-basis: 40px;
+        width: 40px;
+      }
+
+      .section + .section {
+        margin-top: 20px;
+      }
+
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .input-card {
+        padding: 12px;
+      }
+    }
+
+    /* ---------- Reduced Motion ---------- */
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <button
+    id="themeToggle"
+    class="theme-toggle"
+    type="button"
+    aria-label="Switch to light mode"
+    title="Switch to light mode"
+    onclick="toggleTheme()"
+  >
+    <span id="themeIcon" class="theme-icon">☀️</span>
+    <span id="themeLabel" class="theme-label">Light</span>
+  </button>
+
+  <main class="app">
+
+    <header class="header">
+      <div class="header-badge">🏸 BADMINTON CALCULATOR</div>
+      <h1>Hourly Fee Breakdown</h1>
+      <p>Calculate court, shuttlecock and player fees instantly.</p>
+    </header>
+
+    <section class="card">
+
+      <!-- Court & Pricing -->
+      <div class="section">
+        <h2 class="section-title">
+          <span class="icon">🏟️</span>
+          Court &amp; Pricing
+        </h2>
+
+        <div class="form-grid">
+          <div class="input-card">
+            <label for="numCourts">
+              <span>No. of Courts</span>
+              <span class="unit">courts</span>
+            </label>
+
+            <div class="stepper">
+              <button
+                type="button"
+                class="step-btn"
+                aria-label="Decrease number of courts"
+                onclick="stepVal('numCourts', -1, 1)"
+              >−</button>
+
+              <input
+                type="number"
+                id="numCourts"
+                value="1"
+                min="1"
+                step="1"
+                inputmode="numeric"
+                oninput="calculate()"
+              >
+
+              <button
+                type="button"
+                class="step-btn"
+                aria-label="Increase number of courts"
+                onclick="stepVal('numCourts', 1, 1)"
+              >+</button>
+            </div>
+          </div>
+
+          <div class="input-card">
+            <label for="courtRate">
+              <span>Court Rate</span>
+              <span class="unit">RM/hr/court</span>
+            </label>
+
+            <div class="stepper">
+              <button
+                type="button"
+                class="step-btn"
+                aria-label="Decrease court rate"
+                onclick="stepVal('courtRate', -1, 0)"
+              >−</button>
+
+              <input
+                type="number"
+                id="courtRate"
+                value="10.00"
+                min="0"
+                step="0.01"
+                inputmode="decimal"
+                oninput="calculate()"
+              >
+
+              <button
+                type="button"
+                class="step-btn"
+                aria-label="Increase court rate"
+                onclick="stepVal('courtRate', 1, 0)"
+              >+</button>
+            </div>
+          </div>
+
+          <div class="input-card">
+            <label for="shuttlePrice">
+              <span>Shuttlecock</span>
+              <span class="unit">RM / pc</span>
+            </label>
+
+            <div class="stepper">
+              <button
+                type="button"
+                class="step-btn"
+                aria-label="Decrease shuttle price"
+                onclick="stepVal('shuttlePrice', -0.10, 0)"
+              >−</button>
+
+              <input
+                type="number"
+                id="shuttlePrice"
+                value="10.30"
+                min="0"
+                step="0.01"
+                inputmode="decimal"
+                oninput="calculate()"
+              >
+
+              <button
+                type="button"
+                class="step-btn"
+                aria-label="Increase shuttle price"
+                onclick="stepVal('shuttlePrice', 0.10, 0)"
+              >+</button>
+            </div>
+          </div>
+
+          <div class="input-card">
+            <label for="totalHours">
+              <span>Total Hours</span>
+              <span class="unit">hours</span>
+            </label>
+
+            <div class="stepper">
+              <button
+                type="button"
+                class="step-btn"
+                aria-label="Decrease total hours"
+                onclick="stepVal('totalHours', -0.5, 0.5, renderHours)"
+              >−</button>
+
+              <input
+                type="number"
+                id="totalHours"
+                value="2"
+                min="0.5"
+                step="0.5"
+                inputmode="decimal"
+                oninput="renderHours()"
+              >
+
+              <button
+                type="button"
+                class="step-btn"
+                aria-label="Increase total hours"
+                onclick="stepVal('totalHours', 0.5, 0.5, renderHours)"
+              >+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hourly Overview -->
+      <div class="section">
+        <h2 class="section-title">
+          <span class="icon">📊</span>
+          Hour-by-Hour Overview
+        </h2>
+
+        <div class="table-shell">
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Hour</th>
+                  <th>Court Fee</th>
+                  <th>Shuttles</th>
+                  <th>Players</th>
+                  <th>Fee / Pax</th>
+                </tr>
+              </thead>
+
+              <tbody id="hourlyTableBody">
+                <!-- Dynamic hourly rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Summary -->
+      <div class="section summary">
+        <h2 class="section-title">
+          <span class="icon">💰</span>
+          Payment Summary
+        </h2>
+
+        <div class="summary-grid">
+          <div class="summary-box primary">
+            <div class="summary-label">Full Session / Player</div>
+            <div class="summary-value" id="fullPlayerTotal">RM 0.00</div>
+          </div>
+
+          <div class="summary-box">
+            <div class="summary-label">Total Session Cost</div>
+            <div class="summary-value" id="grandTotal">RM 0.00</div>
+          </div>
+        </div>
+
+        <p class="summary-note">
+          💡 Playing only selected hours? Pay only the corresponding
+          <strong>Fee / Pax</strong> shown above.
+        </p>
+
+        <button
+          id="copyBtn"
+          class="copy-btn"
+          type="button"
+          onclick="copyToClipboard()"
+        >
+          📋 Copy Summary to Clipboard
+        </button>
+      </div>
+
+    </section>
+  </main>
+
+  <script>
+    function stepVal(id, delta, min = 0, callback = calculate) {
+      const input = document.getElementById(id);
+      if (!input) return;
+
+      let val = parseFloat(input.value) || 0;
+      val += delta;
+
+      if (val < min) val = min;
+
+      val = Math.round(val * 100) / 100;
+
+      // Preserve the existing behavior:
+      // integer steps show integers, decimal steps show 2 decimal places.
+      input.value = val.toFixed(delta % 1 !== 0 ? 2 : 0);
+
+      callback();
+    }
+
+    function renderHours() {
+      const hours = Math.max(
+        1,
+        Math.ceil(
+          parseFloat(document.getElementById("totalHours").value) || 1
+        )
+      );
+
+      const tbody = document.getElementById("hourlyTableBody");
+
+      // Preserve existing shuttle/player values when the number of
+      // displayed hours changes.
+      const existingShuttles = [];
+      const existingPlayers = [];
+
+      for (let i = 0; i < tbody.children.length; i++) {
+        const s = document.getElementById(`shuttles_${i}`);
+        const p = document.getElementById(`players_${i}`);
+
+        if (s) existingShuttles.push(s.value);
+        if (p) existingPlayers.push(p.value);
+      }
+
+      tbody.innerHTML = "";
+
+      for (let i = 0; i < hours; i++) {
+        const shuttlesVal =
+          existingShuttles[i] !== undefined ? existingShuttles[i] : 1;
+
+        const playersVal =
+          existingPlayers[i] !== undefined ? existingPlayers[i] : 6;
+
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+          <td>
+            <span class="hour-badge">Hr ${i + 1}</span>
+          </td>
+
+          <td class="money">
+            RM <span id="court_${i}">0.00</span>
+          </td>
+
+          <td>
+            <div class="stepper stepper-sm">
+              <button
+                type="button"
+                class="step-btn"
+                aria-label="Decrease shuttles for hour ${i + 1}"
+                onclick="stepVal('shuttles_${i}', -1, 0)"
+              >−</button>
+
+              <input
+                type="number"
+                id="shuttles_${i}"
+                value="${shuttlesVal}"
+                min="0"
+                step="1"
+                inputmode="numeric"
+                aria-label="Shuttles for hour ${i + 1}"
+                oninput="calculate()"
+              >
+
+              <button
+                type="button"
+                class="step-btn"
+                aria-label="Increase shuttles for hour ${i + 1}"
+                onclick="stepVal('shuttles_${i}', 1, 0)"
+              >+</button>
+            </div>
+          </td>
+
+          <td>
+            <div class="stepper stepper-sm">
+              <button
+                type="button"
+                class="step-btn"
+                aria-label="Decrease players for hour ${i + 1}"
+                onclick="stepVal('players_${i}', -1, 1)"
+              >−</button>
+
+              <input
+                type="number"
+                id="players_${i}"
+                value="${playersVal}"
+                min="1"
+                step="1"
+                inputmode="numeric"
+                aria-label="Players for hour ${i + 1}"
+                oninput="calculate()"
+              >
+
+              <button
+                type="button"
+                class="step-btn"
+                aria-label="Increase players for hour ${i + 1}"
+                onclick="stepVal('players_${i}', 1, 1)"
+              >+</button>
+            </div>
+          </td>
+
+          <td class="fee-cell money">
+            RM <span id="costPerPerson_${i}">0.00</span>
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      }
+
+      calculate();
+    }
+
+    function calculate() {
+      const numCourts = Math.max(
+        1,
+        parseInt(document.getElementById("numCourts").value) || 1
+      );
+
+      const courtRate =
+        parseFloat(document.getElementById("courtRate").value) || 0;
+
+      const shuttlePrice =
+        parseFloat(document.getElementById("shuttlePrice").value) || 0;
+
+      const hours = Math.max(
+        1,
+        Math.ceil(
+          parseFloat(document.getElementById("totalHours").value) || 1
+        )
+      );
+
+      let grandTotal = 0;
+      let fullPlayerTotal = 0;
+
+      for (let i = 0; i < hours; i++) {
+        const shuttles =
+          parseFloat(document.getElementById(`shuttles_${i}`)?.value) || 0;
+
+        const players = Math.max(
+          1,
+          parseInt(document.getElementById(`players_${i}`)?.value) || 1
+        );
+
+        const hourCourtFee = courtRate * numCourts;
+        const hourShuttleFee = shuttles * shuttlePrice;
+        const hourTotalCost = hourCourtFee + hourShuttleFee;
+        const costPerPerson = hourTotalCost / players;
+
+        const courtElem = document.getElementById(`court_${i}`);
+        const costElem = document.getElementById(`costPerPerson_${i}`);
+
+        if (courtElem) {
+          courtElem.innerText = hourCourtFee.toFixed(2);
+        }
+
+        if (costElem) {
+          costElem.innerText = costPerPerson.toFixed(2);
+        }
+
+        grandTotal += hourTotalCost;
+        fullPlayerTotal += costPerPerson;
+      }
+
+      document.getElementById("grandTotal").innerText =
+        `RM ${grandTotal.toFixed(2)}`;
+
+      document.getElementById("fullPlayerTotal").innerText =
+        `RM ${fullPlayerTotal.toFixed(2)}`;
+    }
+
+    function copyToClipboard() {
+      const numCourts =
+        document.getElementById("numCourts").value;
+
+      const courtRate =
+        parseFloat(
+          document.getElementById("courtRate").value || 0
+        ).toFixed(2);
+
+      const shuttlePrice =
+        parseFloat(
+          document.getElementById("shuttlePrice").value || 0
+        ).toFixed(2);
+
+      const hours = Math.max(
+        1,
+        Math.ceil(
+          parseFloat(
+            document.getElementById("totalHours").value
+          ) || 1
+        )
+      );
+
+      const grandTotal =
+        document.getElementById("grandTotal").innerText;
+
+      const fullPlayerTotal =
+        document.getElementById("fullPlayerTotal").innerText;
+
+      let msg = `🏸 BADMINTON FEE BREAKDOWN\n`;
+      msg += `━━━━━━━━━━━━━━━━━━━━\n`;
+      msg += `🏟️ Courts: ${numCourts} (RM ${courtRate}/hr/court)\n`;
+      msg += `🏸 Shuttlecock: RM ${shuttlePrice}/pc\n\n`;
+      msg += `📊 HOURLY OVERVIEW:\n`;
+
+      for (let i = 0; i < hours; i++) {
+        const shuttles =
+          document.getElementById(`shuttles_${i}`)?.value || 0;
+
+        const players =
+          document.getElementById(`players_${i}`)?.value || 0;
+
+        const costPerPerson =
+          document.getElementById(`costPerPerson_${i}`)?.innerText ||
+          "0.00";
+
+        msg +=
+          `• Hour ${i + 1}: RM ${costPerPerson} / person ` +
+          `(${players} players, ${shuttles} shuttles)\n`;
+      }
+
+      msg += `\n💰 PAYMENT SUMMARY:\n`;
+      msg += `• Full Session Player: ${fullPlayerTotal}\n`;
+      msg += `• Total Session Cost: ${grandTotal}\n\n`;
+      msg +=
+        `Note: If you played only selected hours, ` +
+        `pay only for those specific hours above!`;
+
+      const btn = document.getElementById("copyBtn");
+
+      navigator.clipboard.writeText(msg)
+        .then(() => {
+          btn.innerText = "✅ Copied to Clipboard!";
+          btn.classList.add("success");
+
+          setTimeout(() => {
+            btn.innerText = "📋 Copy Summary to Clipboard";
+            btn.classList.remove("success");
+          }, 2000);
+        })
+        .catch(() => {
+          alert("Could not copy text. Please try again.");
+        });
+    }
+
+    /*
+      Page-source protection retained from the original file.
+    */
+    document.addEventListener("contextmenu", function(e) {
+      e.preventDefault();
+    });
+
+    document.addEventListener("keydown", function(e) {
+      if (e.keyCode === 123) {
+        e.preventDefault();
+      }
+
+      if (e.ctrlKey && e.keyCode === 85) {
+        e.preventDefault();
+      }
+
+      if (
+        e.ctrlKey &&
+        e.shiftKey &&
+        (e.keyCode === 73 ||
+         e.keyCode === 74 ||
+         e.keyCode === 67)
+      ) {
+        e.preventDefault();
+      }
+    });
+
+
+    /* ---------- Dark / Light Mode ---------- */
+
+    function applyTheme(theme) {
+      const isLight = theme === "light";
+      document.body.classList.toggle("light", isLight);
+
+      const icon = document.getElementById("themeIcon");
+      const label = document.getElementById("themeLabel");
+      const toggle = document.getElementById("themeToggle");
+
+      icon.innerText = isLight ? "🌙" : "☀️";
+      label.innerText = isLight ? "Dark" : "Light";
+
+      toggle.setAttribute(
+        "aria-label",
+        isLight ? "Switch to dark mode" : "Switch to light mode"
+      );
+
+      toggle.setAttribute(
+        "title",
+        isLight ? "Switch to dark mode" : "Switch to light mode"
+      );
+    }
+
+    function toggleTheme() {
+      const newTheme =
+        document.body.classList.contains("light") ? "dark" : "light";
+
+      localStorage.setItem("badmintonTheme", newTheme);
+      applyTheme(newTheme);
+    }
+
+    const savedTheme = localStorage.getItem("badmintonTheme") || "dark";
+    applyTheme(savedTheme);
+
+    // Initial render
+    renderHours();
+  </script>
+</body>
+</html>
